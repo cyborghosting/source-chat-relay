@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"bytes"
+	_ "embed"
 	"fmt"
 	"html/template"
 	"io"
@@ -13,12 +13,13 @@ import (
 
 	"github.com/rumblefrog/source-chat-relay/server/entity"
 
-	packr "github.com/gobuffalo/packr/v2"
-
 	"github.com/sirupsen/logrus"
 )
 
-var box *packr.Box
+//go:embed template/index.html
+var indexHtmlStr string
+//go:embed template/styles.css
+var stylesCssStr string
 
 type renderData struct {
 	Relay    *relay.Relay
@@ -31,8 +32,6 @@ type renderEntity struct {
 }
 
 func UIListen() {
-	box = packr.New("template", "./template/dist")
-
 	http.HandleFunc("/", viewHandler)
 	http.HandleFunc("/styles.css", styleHandler)
 
@@ -46,20 +45,12 @@ func UIListen() {
 }
 
 func viewHandler(w http.ResponseWriter, r *http.Request) {
-	s, err := box.FindString("index.html")
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-
-		return
-	}
-
 	temp, err := template.New("index").Funcs(template.FuncMap{
 		"humanizeChannelString": entity.HumanizeChannelString,
 		"byteToMB": func(b int) string {
 			return fmt.Sprintf("%.6f", float64(b)/(1024*1024))
 		},
-	}).Parse(s)
+	}).Parse(indexHtmlStr)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -156,17 +147,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func styleHandler(w http.ResponseWriter, r *http.Request) {
-	s, err := box.Find("styles.css")
-
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-
-		return
-	}
-
-	buf := bytes.NewBuffer(s)
-
 	w.Header().Set("Content-Type", "text/css; charset=utf-8")
 
-	io.Copy(w, buf)
+	io.WriteString(w, stylesCssStr)
 }
