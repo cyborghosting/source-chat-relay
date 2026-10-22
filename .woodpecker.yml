@@ -16,3 +16,4 @@ when:
     - push
     - tag
     - cron
+    - manual
