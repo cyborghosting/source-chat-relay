@@ -1,0 +1,18 @@
+steps:
+  publish-image:
+    image: woodpeckerci/plugin-docker-buildx:5
+    privileged: true
+    settings:
+      repo: cyborghosting/source-chat-relay
+      auto_tag: true
+      default_tag: latest
+      cache_images:
+        - cyborghosting/source-chat-relay:buildcache
+      build_args:
+        CACHEBUST: "${CI_PIPELINE_STARTED}"
+
+when:
+  event:
+    - push
+    - tag
+    - cron
