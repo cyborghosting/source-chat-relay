@@ -5,6 +5,10 @@ steps:
     settings:
       registry: docker.io
       repo: docker.io/cyborghosting/source-chat-relay
+      username:
+        from_secret: docker_username
+      password:
+        from_secret: docker_password
       auto_tag: true
       default_tag: latest
       cache_images:
