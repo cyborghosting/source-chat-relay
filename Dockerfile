@@ -1,4 +1,4 @@
-FROM golang:1.25-alpine AS builder
+FROM golang:1.26.9 AS builder
 
 WORKDIR /app
 
@@ -16,3 +16,4 @@ COPY --from=builder /app/source-chat-relay /source-chat-relay
 COPY --from=builder /app/config.toml.example /config.toml.example
 
 ENTRYPOINT [ "/source-chat-relay" ]
+
